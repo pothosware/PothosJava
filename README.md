@@ -1,5 +1,9 @@
 # Java bindings for the Pothos framework
 
+## Documentation
+
+* https://github.com/pothosware/PothosJava/wiki
+
 ## Dependencies
 
 * Pothos library
