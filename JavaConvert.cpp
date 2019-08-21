@@ -1,4 +1,5 @@
 // Copyright (c) 2013-2013 Josh Blum
+//                    2019 Nicholas Corgan
 // SPDX-License-Identifier: BSL-1.0
 
 #include <Pothos/Plugin.hpp>
@@ -6,6 +7,8 @@
 #include <Poco/Bugcheck.h>
 #include <cstdint>
 #include <cassert>
+#include <cstring>
+#include <type_traits>
 
 /***********************************************************************
  * Null
@@ -173,6 +176,73 @@ pothos_static_block(pothosRegisterJavaStringConversions)
 /***********************************************************************
  * Convert to Java Arrays
  **********************************************************************/
+
+// Utility functions
+
+template <typename ctype>
+using IsTypeBool = std::is_same<ctype, bool>;
+
+template <typename ctype, typename jtype>
+using DoTypesMatch = std::is_same<ctype, jtype>;
+
+// If the C++ vector and the Java array are the same type under the hood,
+// we can directly memcpy the values. This does not hold for bool, as
+// std::vector<bool>'s specialization does not provide data().
+template <typename ctype, typename jtype, typename retType>
+using EnableForMemcpy = typename std::enable_if<DoTypesMatch<ctype, jtype>::value && !IsTypeBool<ctype>::value, retType>;
+
+// If the C++ vector and the Java array are different types under the hood,
+// or if the C++ type is a bool, we cannot use the memcpy optimization and must
+// copy and cast each element individually.
+template <typename ctype, typename jtype, typename retType>
+using EnableForStaticCast = typename std::enable_if<!DoTypesMatch<ctype, jtype>::value || IsTypeBool<ctype>::value, retType>;
+
+template <typename ctype, typename jtype>
+static typename EnableForMemcpy<ctype, jtype, void>::type copyNumericVectorToJArray(
+    jtype* jElems,
+    const std::vector<ctype>& cppVec)
+{
+    std::memcpy(
+        jElems,
+        const_cast<std::vector<ctype>&>(cppVec).data(),
+        (sizeof(ctype) * cppVec.size()));
+}
+
+template <typename ctype, typename jtype>
+static typename EnableForStaticCast<ctype, jtype, void>::type copyNumericVectorToJArray(
+    jtype* jElems,
+    const std::vector<ctype>& cppVec)
+{
+    for (size_t i = 0; i < cppVec.size(); i++)
+    {
+        jElems[i] = static_cast<jtype>(cppVec[i]);
+    }
+}
+
+template <typename ctype, typename jtype>
+static typename EnableForMemcpy<ctype, jtype, void>::type copyJArrayToNumericVector(
+    std::vector<ctype>& cppVec,
+    const jtype* jElems)
+{
+    std::memcpy(
+        cppVec.data(),
+        jElems,
+        (sizeof(ctype) * cppVec.size()));
+}
+
+template <typename ctype, typename jtype>
+static typename EnableForStaticCast<ctype, jtype, void>::type copyJArrayToNumericVector(
+    std::vector<ctype>& cppVec,
+    const jtype* jElems)
+{
+    for (size_t i = 0; i < cppVec.size(); i++)
+    {
+        cppVec[i] = static_cast<ctype>(jElems[i]);
+    }
+}
+
+// Functions used by Pothos for conversion
+
 template <char sig, typename T>
 Pothos::Proxy convertNumericVectorToJArray(Pothos::ProxyEnvironment::Sptr env, const std::vector<T> &vec)
 {
@@ -183,7 +253,7 @@ Pothos::Proxy convertNumericVectorToJArray(Pothos::ProxyEnvironment::Sptr env, c
     { \
         auto ar = jenv->env->New ## PrimitiveType ## Array(vec.size()); \
         jtype *elems = jenv->env->Get ## PrimitiveType ## ArrayElements(ar, nullptr); \
-        for (size_t i = 0; i < vec.size(); i++) elems[i] = static_cast<jtype>(vec[i]); \
+        copyNumericVectorToJArray<T, jtype>(elems, vec); \
         jenv->env->Release ## PrimitiveType ## ArrayElements(ar, elems, 0 /*mode*/); \
         return jenv->makeHandle(ar); \
     }
@@ -210,7 +280,7 @@ std::vector<T> convertJArrayToNumericVector(const Pothos::Proxy &proxy)
         auto ar = (jtype ## Array) std::dynamic_pointer_cast<JavaProxyHandle>(proxy.getHandle())->value.l; \
         std::vector<T> vec(jenv->env->GetArrayLength(ar)); \
         jtype *elems = jenv->env->Get ## PrimitiveType ## ArrayElements(ar, nullptr); \
-        for (size_t i = 0; i < vec.size(); i++) vec[i] = static_cast<T>(elems[i]); \
+        copyJArrayToNumericVector<T, jtype>(vec, elems); \
         jenv->env->Release ## PrimitiveType ## ArrayElements(ar, elems, JNI_ABORT); \
         return vec; \
     }
