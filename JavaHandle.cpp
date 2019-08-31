@@ -138,11 +138,11 @@ Pothos::Proxy JavaProxyHandle::call(const std::string &name, const Pothos::Proxy
         auto self = env->makeHandle(this->toJobject());
         if (name.substr(0, colon) == "set" and numArgs == 1)
         {
-            return self.callProxy("class").callProxy("getField", name.substr(colon+1)).callProxy("set", self, args[0]);
+            return self.call("class").call("getField", name.substr(colon+1)).call("set", self, args[0]);
         }
         else if (name.substr(0, colon) == "get" and numArgs == 0)
         {
-            return self.callProxy("class").callProxy("getField", name.substr(colon+1)).callProxy("get", self);
+            return self.call("class").call("getField", name.substr(colon+1)).call("get", self);
         }
         else throw Pothos::ProxyHandleCallError(
             "JavaProxyHandle::call("+name+")", "unknown operation");

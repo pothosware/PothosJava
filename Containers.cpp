@@ -9,11 +9,11 @@
  **********************************************************************/
 static Pothos::Proxy convertVectorToJVector(Pothos::ProxyEnvironment::Sptr env, const Pothos::ProxyVector &vec)
 {
-    auto jVector = env->findProxy("java.util.Vector").callProxy("new");
-    jVector.callVoid("setSize", vec.size());
+    auto jVector = env->findProxy("java.util.Vector").call("new");
+    jVector.call("setSize", vec.size());
     for (size_t i = 0; i < vec.size(); i++)
     {
-        jVector.callVoid("set", i, vec[i]);
+        jVector.call("set", i, vec[i]);
     }
     return jVector;
 }
@@ -23,7 +23,7 @@ static Pothos::ProxyVector convertJVectorToVector(const Pothos::Proxy &proxy)
     Pothos::ProxyVector vec(proxy.call<size_t>("size"));
     for (size_t i = 0; i < vec.size(); i++)
     {
-        vec[i] = proxy.callProxy("get", i);
+        vec[i] = proxy.call("get", i);
     }
     return vec;
 }
@@ -41,10 +41,10 @@ pothos_static_block(pothosRegisterJavaVectorConversions)
  **********************************************************************/
 static Pothos::Proxy convertSetToJSet(Pothos::ProxyEnvironment::Sptr env, const Pothos::ProxySet &set)
 {
-    auto jSet = env->findProxy("java.util.HashSet").callProxy("new");
+    auto jSet = env->findProxy("java.util.HashSet").call("new");
     for (const auto &entry : set)
     {
-        jSet.callVoid("add", entry);
+        jSet.call("add", entry);
     }
     return jSet;
 }
@@ -52,10 +52,10 @@ static Pothos::Proxy convertSetToJSet(Pothos::ProxyEnvironment::Sptr env, const 
 static Pothos::ProxySet convertJSetToSet(const Pothos::Proxy &proxy)
 {
     Pothos::ProxySet set;
-    auto it = proxy.callProxy("iterator");
+    auto it = proxy.call("iterator");
     while (it.call<bool>("hasNext"))
     {
-        set.insert(it.callProxy("next"));
+        set.insert(it.call("next"));
     }
     return set;
 }
@@ -73,10 +73,10 @@ pothos_static_block(pothosRegisterJavaSetConversions)
  **********************************************************************/
 static Pothos::Proxy convertMapToJMap(Pothos::ProxyEnvironment::Sptr env, const Pothos::ProxyMap &map)
 {
-    auto jMap = env->findProxy("java.util.HashMap").callProxy("new");
+    auto jMap = env->findProxy("java.util.HashMap").call("new");
     for (const auto &entry : map)
     {
-        jMap.callVoid("put", entry.first, entry.second);
+        jMap.call("put", entry.first, entry.second);
     }
     return jMap;
 }
@@ -84,11 +84,11 @@ static Pothos::Proxy convertMapToJMap(Pothos::ProxyEnvironment::Sptr env, const 
 static Pothos::ProxyMap convertJMapToMap(const Pothos::Proxy &proxy)
 {
     Pothos::ProxyMap map;
-    auto it = proxy.callProxy("entrySet").callProxy("iterator");
+    auto it = proxy.call("entrySet").call("iterator");
     while (it.call<bool>("hasNext"))
     {
-        auto entry = it.callProxy("next");
-        map[entry.callProxy("getKey")] = entry.callProxy("getValue");
+        auto entry = it.call("next");
+        map[entry.call("getKey")] = entry.call("getValue");
     }
     return map;
 }
