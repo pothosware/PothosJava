@@ -117,9 +117,9 @@ void JavaProxyEnvironment::serialize(const Pothos::Proxy &proxy, std::ostream &o
 {
     try
     {
-        auto b = this->findProxy("java.io.ByteArrayOutputStream").callProxy("new");
-        auto o = this->findProxy("java.io.ObjectOutputStream").callProxy("new", b);
-        o.callVoid("writeObject", proxy);
+        auto b = this->findProxy("java.io.ByteArrayOutputStream").call("new");
+        auto o = this->findProxy("java.io.ObjectOutputStream").call("new", b);
+        o.call("writeObject", proxy);
         const auto bytes = b.call<std::vector<int8_t>>("toByteArray");
         os.write((const char *)bytes.data(), bytes.size());
     }
@@ -139,9 +139,9 @@ Pothos::Proxy JavaProxyEnvironment::deserialize(std::istream &is)
 
     try
     {
-        auto b = this->findProxy("java.io.ByteArrayInputStream").callProxy("new", bytes);
-        auto o = this->findProxy("java.io.ObjectInputStream").callProxy("new", b);
-        return o.callProxy("readObject");
+        auto b = this->findProxy("java.io.ByteArrayInputStream").call("new", bytes);
+        auto o = this->findProxy("java.io.ObjectInputStream").call("new", b);
+        return o.call("readObject");
     }
     catch (const Pothos::Exception &ex)
     {

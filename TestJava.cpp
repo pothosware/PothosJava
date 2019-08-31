@@ -157,11 +157,11 @@ POTHOS_TEST_BLOCK("/proxy/java/tests", test_reflect)
 
     //do we get the names expected from the reflect class?
     auto myString = env->makeProxy(str);
-    auto strClass = myString.callProxy("class");
+    auto strClass = myString.call("class");
     POTHOS_TEST_EQUAL(strClass.call<std::string>("getName"), "java.lang.String");
 
-    auto strBytes = myString.callProxy("getBytes");
-    auto bytesClass = strBytes.callProxy("class");
+    auto strBytes = myString.call("getBytes");
+    auto bytesClass = strBytes.call("class");
     POTHOS_TEST_EQUAL(bytesClass.call<std::string>("getName"), "[B");
 
     //check the conversion as well
@@ -173,28 +173,28 @@ POTHOS_TEST_BLOCK("/proxy/java/tests", test_primitive)
 {
     auto env = Pothos::ProxyEnvironment::make("java");
 
-    auto myBoolean = env->findProxy("java.lang.Boolean").callProxy("new", true);
+    auto myBoolean = env->findProxy("java.lang.Boolean").call("new", true);
     POTHOS_TEST_EQUAL(myBoolean.convert<bool>(), true);
 
-    auto myCharacter = env->findProxy("java.lang.Character").callProxy("new", 21);
+    auto myCharacter = env->findProxy("java.lang.Character").call("new", 21);
     POTHOS_TEST_EQUAL(myCharacter.convert<char>(), 21);
 
-    auto myByte = env->findProxy("java.lang.Byte").callProxy("new", -12);
+    auto myByte = env->findProxy("java.lang.Byte").call("new", -12);
     POTHOS_TEST_EQUAL(myByte.convert<signed char>(), -12);
 
-    auto myShort = env->findProxy("java.lang.Short").callProxy("new", 12345);
+    auto myShort = env->findProxy("java.lang.Short").call("new", 12345);
     POTHOS_TEST_EQUAL(myShort.convert<short>(), 12345);
 
-    auto myInteger = env->findProxy("java.lang.Integer").callProxy("new", 42);
+    auto myInteger = env->findProxy("java.lang.Integer").call("new", 42);
     POTHOS_TEST_EQUAL(myInteger.convert<int>(), 42);
 
-    auto myLong = env->findProxy("java.lang.Long").callProxy("new", 1ll << 34);
+    auto myLong = env->findProxy("java.lang.Long").call("new", 1ll << 34);
     POTHOS_TEST_EQUAL(myLong.convert<long long>(), 1ll << 34);
 
-    auto myFloat = env->findProxy("java.lang.Float").callProxy("new", -30.0);
+    auto myFloat = env->findProxy("java.lang.Float").call("new", -30.0);
     POTHOS_TEST_EQUAL(myFloat.convert<float>(), -30.0);
 
-    auto myDouble = env->findProxy("java.lang.Double").callProxy("new", -20.0);
+    auto myDouble = env->findProxy("java.lang.Double").call("new", -20.0);
     POTHOS_TEST_EQUAL(myDouble.convert<double>(), -20.0);
 }
 
@@ -202,7 +202,7 @@ POTHOS_TEST_BLOCK("/proxy/java/tests", test_fields)
 {
     auto env = Pothos::ProxyEnvironment::make("java");
 
-    auto myInteger = env->findProxy("java.lang.Integer").callProxy("new", 42);
+    auto myInteger = env->findProxy("java.lang.Integer").call("new", 42);
     std::cout << myInteger.call<int>("get:MAX_VALUE") << std::endl;
     //TODO try to set and get a non static field when we find an example object to try it on
 }
