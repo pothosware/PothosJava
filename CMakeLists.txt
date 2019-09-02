@@ -58,6 +58,7 @@ set(SOURCES
     JavaHandle.cpp
     TestJava.cpp
     Containers.cpp
+    FrameworkTypes.cpp
 )
 
 POTHOS_MODULE_UTIL(

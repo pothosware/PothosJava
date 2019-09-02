@@ -5,9 +5,10 @@
 #include <iostream>
 #include <cassert>
 #include <cctype>
+#include <memory>
 
 JavaProxyHandle::JavaProxyHandle(std::shared_ptr<JavaProxyEnvironment> env, jvalue value, char sig):
-    env(env), value(value), sig(sig)
+    env(env), value(value), sig(sig), inheritance(getInheritance()), getClassNameDepth(0)
 {
     assert(isupper(sig));
 }
@@ -61,13 +62,51 @@ std::string JavaProxyHandle::toString(void) const
     return env->jstringToString(env->env->CallObjectMethod(this->toJobject(), toString));
 }
 
+Pothos::Proxy JavaProxyHandle::getProxyWithSuperclassName(void) const
+{
+    if(!hasSuperclass())
+    {
+        throw Pothos::BadCastException(
+                  "JavaProxyHandle::getHandleWithSuperclassName()",
+                  "No subclass for "+this->getClassName());
+    }
+
+    auto superclassHandle = std::make_shared<JavaProxyHandle>(*this);
+    ++superclassHandle->getClassNameDepth;
+
+    return Pothos::Proxy(superclassHandle);
+}
+
 std::string JavaProxyHandle::getClassName(void) const
 {
-    if (sig != 'L') return std::string(1, this->sig);
-    if (value.l == nullptr) return "";
-    jclass cls = env->env->GetObjectClass(value.l);
-    assert(cls != nullptr);
-    return env->getClassName(cls);
+    if((sig == 'L') && (value.l != nullptr))
+    {
+        assert(getClassNameDepth < inheritance.size());
+        return inheritance[getClassNameDepth];
+    }
+    else if (sig != 'L') return std::string(1, this->sig);
+
+    return "";
+}
+
+std::vector<std::string> JavaProxyHandle::getInheritance(void) const
+{
+    std::vector<std::string> superclassNames;
+    if((sig == 'L') && (value.l != nullptr))
+    {
+        jclass cls = env->env->GetObjectClass(value.l);
+        while(cls != nullptr)
+        {
+            superclassNames.emplace_back(env->getClassName(cls));
+            cls = env->env->GetSuperclass(cls);
+        }
+    }
+    else
+    {
+        superclassNames.emplace_back(this->getClassName());
+    }
+
+    return superclassNames;
 }
 
 /***********************************************************************

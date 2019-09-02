@@ -1,10 +1,12 @@
 // Copyright (c) 2013-2014 Josh Blum
+//                    2019 Nicholas Corgan
 // SPDX-License-Identifier: BSL-1.0
 
 #include "JavaProxy.hpp"
 #include <Pothos/Callable.hpp>
 #include <Pothos/Plugin.hpp>
 #include <iostream>
+#include <Poco/Format.h>
 #include <Poco/SingletonHolder.h>
 #include <cstdint>
 #include <mutex>
@@ -147,6 +149,37 @@ Pothos::Proxy JavaProxyEnvironment::deserialize(std::istream &is)
     {
         throw Pothos::ProxySerializeError("JavaProxyEnvironment::deserialize()", ex);
     }
+}
+
+Pothos::Object JavaProxyEnvironment::convertProxyToObject(const Pothos::Proxy &proxy_)
+{
+    // First, try the parent method.
+    try
+    {
+        return Pothos::ProxyEnvironment::convertProxyToObject(proxy_);
+    }
+    catch (const Pothos::ProxyEnvironmentConvertError&) {}
+
+    Pothos::Proxy proxy = proxy_;
+    auto javaHandle = std::dynamic_pointer_cast<JavaProxyHandle>(proxy.getHandle());
+
+    while(javaHandle->hasSuperclass())
+    {
+        proxy = javaHandle->getProxyWithSuperclassName();
+        javaHandle = std::dynamic_pointer_cast<JavaProxyHandle>(proxy.getHandle());
+        try
+        {
+            return Pothos::ProxyEnvironment::convertProxyToObject(proxy);
+        }
+        catch(const Pothos::ProxyEnvironmentConvertError&) {}
+    }
+
+    // At this point, we've tried everything up to java.lang.Object, so if
+    // there's no conversion so far, there's no conversion at all.
+    throw Pothos::ProxyEnvironmentConvertError(
+        "JavaProxyEnvironment::convertProxyToObject()",
+        Poco::format("cannot convert %s or any superclasses to Pothos::Object",
+        proxy_.getClassName()));
 }
 
 /***********************************************************************
