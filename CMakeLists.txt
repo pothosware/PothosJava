@@ -56,8 +56,11 @@ set(SOURCES
     JavaConvert.cpp
     JavaHelper.cpp
     JavaHandle.cpp
-    TestJava.cpp
     Containers.cpp
+
+    jni/ProxyJNI.cpp
+
+    TestJava.cpp
 )
 
 POTHOS_MODULE_UTIL(
