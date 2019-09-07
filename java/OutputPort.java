@@ -93,8 +93,6 @@ public class OutputPort
         outputPortProxy.call("popElements", args);
     }
 
-    // TODO: getBuffer without elements in JNI
-
     public void postLabel(Label label)
     {
         Object[] args = new Object[1];
