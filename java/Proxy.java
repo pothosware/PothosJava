@@ -12,14 +12,55 @@ public class Proxy
         nativeHandle = allocateJNI();
     }
 
-    public Object call(String name)
+    private Proxy(long handle)
     {
-        return callJNI(nativeHandle, name);
+        nativeHandle = handle;
     }
 
-    public Object call(String name, Object[] params)
+    public Proxy call(String name)
     {
-        return callJNI(nativeHandle, name, params);
+        return new Proxy(callJNI(nativeHandle, name));
+    }
+
+    public Proxy call(String name, Object[] params)
+    {
+        return new Proxy(callJNI(nativeHandle, name, params));
+    }
+
+    public Proxy call(String name, Proxy[] params)
+    {
+        Object[] objectParams = new Object[params.length];
+        for(int i = 0; i < objectParams.length; ++i)
+        {
+            objectParams[i] = params[i].toObject();
+        }
+
+        return call(name, objectParams);
+    }
+
+    public Proxy get(String field)
+    {
+        return new Proxy(getJNI(nativeHandle, field));
+    }
+
+    public void set(String field, Object value)
+    {
+        setObjectJNI(nativeHandle, field, value);
+    }
+
+    public void set(String field, Proxy value)
+    {
+        setProxyJNI(nativeHandle, field, value.nativeHandle);
+    }
+
+    public Object toObject()
+    {
+        return toObjectJNI(nativeHandle);
+    }
+
+    public String getClassName()
+    {
+        return getClassNameJNI(nativeHandle);
     }
 
     @Override
@@ -53,9 +94,19 @@ public class Proxy
     // JNI below
     //
 
-    private static native Object callJNI(long handle, String name);
+    private static native long callJNI(long handle, String name);
 
-    private static native Object callJNI(long handle, String name, Object[] params);
+    private static native long callJNI(long handle, String name, Object[] params);
+
+    private static native long getJNI(long handle, String field);
+
+    private static native void setObjectJNI(long handle, String field, Object value);
+
+    private static native void setProxyJNI(long handle, String field, long valueHandle);
+
+    private static native Object toObjectJNI(long handle);
+
+    private static native String getClassNameJNI(long handle);
 
     private static native String toStringJNI(long handle);
 

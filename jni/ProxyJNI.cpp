@@ -11,36 +11,115 @@
 /*
  * Class:     Pothos_Proxy
  * Method:    callJNI
- * Signature: (JLjava/lang/String;)Ljava/lang/Object;
+ * Signature: (JLjava/lang/String;)J
  */
-JNIEXPORT jobject JNICALL Java_Pothos_Proxy_callJNI__JLjava_lang_String_2
+JNIEXPORT jlong JNICALL Java_Pothos_Proxy_callJNI__JLjava_lang_String_2
   (JNIEnv *, jclass, jlong handle, jstring name)
 {
     auto* pNativeProxy = jlongToPtr<Pothos::Proxy>(handle);
     auto nativeName = Pothos::Object(name).convert<std::string>();
 
-    auto nativeResult = pNativeProxy->call(nativeName, nullptr, 0);
-    return proxyToJObject(nativeResult);
+    Pothos::Proxy* pNewProxy = new Pothos::Proxy();
+    *pNewProxy = pNativeProxy->call(nativeName, nullptr, 0);
+
+    return ptrToJLong(pNewProxy);
 }
 
 /*
  * Class:     Pothos_Proxy
  * Method:    callJNI
- * Signature: (JLjava/lang/String;[Ljava/lang/Object;)Ljava/lang/Object;
+ * Signature: (JLjava/lang/String;[Ljava/lang/Object;)J
  */
-JNIEXPORT jobject JNICALL Java_Pothos_Proxy_callJNI__JLjava_lang_String_2_3Ljava_lang_Object_2
+JNIEXPORT jlong JNICALL Java_Pothos_Proxy_callJNI__JLjava_lang_String_2_3Ljava_lang_Object_2
   (JNIEnv *, jclass, jlong handle, jstring name, jobjectArray params)
 {
     auto* pNativeProxy = jlongToPtr<Pothos::Proxy>(handle);
     auto nativeName = Pothos::Object(name).convert<std::string>();
-    auto pProxyEnv = std::dynamic_pointer_cast<JavaProxyEnvironment>(pNativeProxy->getEnvironment());
 
     auto proxyVector = Pothos::Object(params).convert<Pothos::ProxyVector>();
 
-    return pNativeProxy->getHandle()->call(
-               nativeName,
-               proxyVector.data(),
-               proxyVector.size());
+    Pothos::Proxy* pNewProxy = new Pothos::Proxy();
+    *pNewProxy = pNativeProxy->getHandle()->call(
+                     nativeName,
+                     proxyVector.data(),
+                     proxyVector.size());
+
+    return ptrToJLong(pNewProxy);
+}
+
+/*
+ * Class:     Pothos_Proxy
+ * Method:    getJNI
+ * Signature: (JLjava/lang/String;)J
+ */
+JNIEXPORT jlong JNICALL Java_Pothos_Proxy_getJNI
+  (JNIEnv *, jclass, jlong handle, jstring field)
+{
+    auto* pNativeProxy = jlongToPtr<Pothos::Proxy>(handle);
+    auto nativeField = Pothos::Object(field).convert<std::string>();
+
+    Pothos::Proxy* pNewProxy = new Pothos::Proxy();
+    *pNewProxy = pNativeProxy->get(nativeField);
+
+    return ptrToJLong(pNewProxy);
+}
+
+/*
+ * Class:     Pothos_Proxy
+ * Method:    setObjectJNI
+ * Signature: (JLjava/lang/String;Ljava/lang/Object;)V
+ */
+JNIEXPORT void JNICALL Java_Pothos_Proxy_setObjectJNI
+  (JNIEnv *, jclass, jlong handle, jstring field, jobject value)
+{
+    auto* pNativeProxy = jlongToPtr<Pothos::Proxy>(handle);
+    auto nativeField = Pothos::Object(field).convert<std::string>();
+
+    auto javaEnv = std::dynamic_pointer_cast<JavaProxyEnvironment>(pNativeProxy->getEnvironment());
+    auto valueProxy = javaEnv->makeHandle(value);
+
+    pNativeProxy->set(nativeField, valueProxy);
+}
+
+/*
+ * Class:     Pothos_Proxy
+ * Method:    setProxyJNI
+ * Signature: (JLjava/lang/String;J)V
+ */
+JNIEXPORT void JNICALL Java_Pothos_Proxy_setProxyJNI
+  (JNIEnv *, jclass, jlong handle, jstring field, jlong valueHandle)
+{
+    auto* pNativeProxy = jlongToPtr<Pothos::Proxy>(handle);
+    auto nativeField = Pothos::Object(field).convert<std::string>();
+    auto* pValueProxy = jlongToPtr<Pothos::Proxy>(valueHandle);
+
+    pNativeProxy->set(nativeField, (*pValueProxy));
+}
+
+/*
+ * Class:     Pothos_Proxy
+ * Method:    toObjectJNI
+ * Signature: (J)Ljava/lang/Object;
+ */
+JNIEXPORT jobject JNICALL Java_Pothos_Proxy_toObjectJNI
+  (JNIEnv *, jclass, jlong handle)
+{
+    auto* pNativeProxy = jlongToPtr<Pothos::Proxy>(handle);
+    auto javaHandle = std::dynamic_pointer_cast<JavaProxyHandle>(pNativeProxy->getHandle());
+
+    return javaHandle->toJobject();
+}
+
+/*
+ * Class:     Pothos_Proxy
+ * Method:    getClassNameJNI
+ * Signature: (J)Ljava/lang/String;
+ */
+JNIEXPORT jstring JNICALL Java_Pothos_Proxy_getClassNameJNI
+  (JNIEnv *, jclass, jlong handle)
+{
+    auto* pNativeProxy = jlongToPtr<Pothos::Proxy>(handle);
+    return Pothos::Object(pNativeProxy->getClassName()).convert<jstring>();
 }
 
 /*
