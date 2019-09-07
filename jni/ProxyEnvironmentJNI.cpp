@@ -109,9 +109,28 @@ JNIEXPORT jboolean JNICALL Java_Pothos_ProxyEnvironment_equalsJNI
 /*
  * Class:     Pothos_ProxyEnvironment
  * Method:    allocateJNI
+ * Signature: (Ljava/lang/String;)J
+ */
+JNIEXPORT jlong JNICALL Java_Pothos_ProxyEnvironment_allocateJNI__Ljava_lang_String_2
+  (JNIEnv *, jclass, jstring name)
+{
+    auto javaEnvSPtr = Pothos::ProxyEnvironment::make("java");
+    auto nativeName = javaEnvSPtr->makeProxy(name)
+                          .convert<std::string>();
+
+    auto* pNewProxyEnvironment = new Pothos::ProxyEnvironment::Sptr();
+    *pNewProxyEnvironment = Pothos::ProxyEnvironment::make(nativeName);
+
+    return ptrToJLong(pNewProxyEnvironment);
+}
+
+
+/*
+ * Class:     Pothos_ProxyEnvironment
+ * Method:    allocateJNI
  * Signature: (Ljava/lang/String;Ljava/util/HashMap;)J
  */
-JNIEXPORT jlong JNICALL Java_Pothos_ProxyEnvironment_allocateJNI
+JNIEXPORT jlong JNICALL Java_Pothos_ProxyEnvironment_allocateJNI__Ljava_lang_String_2Ljava_util_HashMap_2
   (JNIEnv *, jclass, jstring name, jobject proxyEnvironmentArgs)
 {
     auto javaEnvSPtr = Pothos::ProxyEnvironment::make("java");

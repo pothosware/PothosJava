@@ -7,6 +7,11 @@ public class ProxyEnvironment
 {
     private long nativeHandle;
 
+    public ProxyEnvironment(String name)
+    {
+        nativeHandle = allocateJNI(name);
+    }
+
     public ProxyEnvironment(
         String name,
         java.util.HashMap proxyEnvironmentArgs)
@@ -90,6 +95,8 @@ public class ProxyEnvironment
     private static native int hashCodeJNI(long handle);
 
     private static native boolean equalsJNI(long handle1, long handle2);
+
+    private static native long allocateJNI(String name);
 
     private static native long allocateJNI(String name, java.util.HashMap proxyEnvironmentArgs);
 }
