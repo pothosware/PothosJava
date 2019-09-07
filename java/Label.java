@@ -69,6 +69,11 @@ public class Label
         return (long)managedGet("width");
     }
 
+    public Proxy getProxy()
+    {
+        return labelProxy;
+    }
+
     //
     // Helpers
     //

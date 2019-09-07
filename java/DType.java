@@ -5,14 +5,14 @@ package Pothos;
 
 public class DType
 {
-    private Proxy managedDTypeProxy;
+    private Proxy dtypeProxy;
 
     public DType()
     {
         ProxyEnvironment proxyEnvironment = new ProxyEnvironment("managed");
         Proxy managedDTypeClass = proxyEnvironment.findProxy("Pothos/DType");
 
-        managedDTypeProxy = managedDTypeClass.call("()");
+        dtypeProxy = managedDTypeClass.call("()");
     }
 
     public DType(String markup)
@@ -23,7 +23,7 @@ public class DType
         Object[] args = new Object[1];
         args[0] = markup;
 
-        managedDTypeProxy = managedDTypeClass.call("()", args);
+        dtypeProxy = managedDTypeClass.call("()", args);
     }
 
     public DType(String alias, int dimension)
@@ -35,7 +35,12 @@ public class DType
         args[0] = alias;
         args[1] = dimension;
 
-        managedDTypeProxy = managedDTypeClass.call("()", args);
+        dtypeProxy = managedDTypeClass.call("()", args);
+    }
+
+    public DType(Proxy proxy)
+    {
+        dtypeProxy = proxy;
     }
 
     // TODO: Java-esque version
@@ -102,7 +107,7 @@ public class DType
 
     public Proxy getProxy()
     {
-        return managedDTypeProxy;
+        return dtypeProxy;
     }
 
     @Override
@@ -114,7 +119,7 @@ public class DType
     @Override
     public int hashCode()
     {
-        return managedDTypeProxy.hashCode();
+        return dtypeProxy.hashCode();
     }
 
     @Override
@@ -141,11 +146,11 @@ public class DType
 
     private Object managedCall(String name)
     {
-        return managedDTypeProxy.call(name).toObject();
+        return dtypeProxy.call(name).toObject();
     }
 
     private Object managedCall(String name, Object[] args)
     {
-        return managedDTypeProxy.call(name, args).toObject();
+        return dtypeProxy.call(name, args).toObject();
     }
 }
