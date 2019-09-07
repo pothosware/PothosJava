@@ -17,9 +17,15 @@ public class Proxy
         return callJNI(nativeHandle, name);
     }
 
-    public Object call(String name, Object param1)
+    public Object call(String name, Object[] params)
     {
-        return callJNI(nativeHandle, name, param1);
+        return callJNI(nativeHandle, name, params);
+    }
+
+    @Override
+    public String toString()
+    {
+        return toStringJNI(nativeHandle);
     }
 
     @Override
@@ -49,7 +55,9 @@ public class Proxy
 
     private static native Object callJNI(long handle, String name);
 
-    private static native Object callJNI(long handle, String name, Object param1);
+    private static native Object callJNI(long handle, String name, Object[] params);
+
+    private static native String toStringJNI(long handle);
 
     private static native int hashCodeJNI(long handle);
 
