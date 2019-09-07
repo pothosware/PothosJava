@@ -9,7 +9,7 @@
 
 #include <jni.h>
 
-jobject proxyToJObject(const Pothos::Proxy& proxy)
+static jobject proxyToJObject(const Pothos::Proxy& proxy)
 {
     auto proxyHandle = std::dynamic_pointer_cast<JavaProxyHandle>(proxy.getHandle());
     return proxyHandle->toJobject();

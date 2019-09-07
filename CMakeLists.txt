@@ -59,6 +59,7 @@ set(SOURCES
     Containers.cpp
 
     jni/ProxyJNI.cpp
+    jni/ProxyEnvironmentJNI.cpp
 
     TestJava.cpp
 )

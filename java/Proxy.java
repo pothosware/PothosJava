@@ -12,7 +12,7 @@ public class Proxy
         nativeHandle = allocateJNI();
     }
 
-    private Proxy(long handle)
+    public Proxy(long handle)
     {
         nativeHandle = handle;
     }
