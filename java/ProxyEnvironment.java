@@ -14,7 +14,7 @@ public class ProxyEnvironment
         nativeHandle = allocateJNI(name, proxyEnvironmentArgs);
     }
 
-    private ProxyEnvironment(long handle)
+    public ProxyEnvironment(long handle)
     {
         nativeHandle = handle;
     }

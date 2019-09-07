@@ -17,6 +17,11 @@ public class Proxy
         nativeHandle = handle;
     }
 
+    public ProxyEnvironment getEnvironment()
+    {
+        return new ProxyEnvironment(getEnvironmentJNI(nativeHandle));
+    }
+
     public Proxy call(String name)
     {
         return new Proxy(callJNI(nativeHandle, name));
@@ -93,6 +98,8 @@ public class Proxy
     //
     // JNI below
     //
+
+    private static native long getEnvironmentJNI(long handle);
 
     private static native long callJNI(long handle, String name);
 

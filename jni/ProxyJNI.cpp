@@ -10,6 +10,22 @@
 
 /*
  * Class:     Pothos_Proxy
+ * Method:    getEnvironmentJNI
+ * Signature: (J)J
+ */
+JNIEXPORT jlong JNICALL Java_Pothos_Proxy_getEnvironmentJNI
+  (JNIEnv *, jclass, jlong handle)
+{
+    auto* pNativeProxy = jlongToPtr<Pothos::Proxy>(handle);
+
+    auto* pNewEnvironmentSPtr = new Pothos::ProxyEnvironment::Sptr();
+    *pNewEnvironmentSPtr = pNativeProxy->getEnvironment();
+
+    return ptrToJLong(pNewEnvironmentSPtr);
+}
+
+/*
+ * Class:     Pothos_Proxy
  * Method:    callJNI
  * Signature: (JLjava/lang/String;)J
  */
