@@ -27,9 +27,25 @@ public class Proxy
         return new Proxy(callJNI(nativeHandle, name));
     }
 
+    public Proxy call(String name, Object param)
+    {
+        Object[] params = new Object[1];
+        params[0] = param;
+
+        return this.call(name, params);
+    }
+
     public Proxy call(String name, Object[] params)
     {
         return new Proxy(callJNI(nativeHandle, name, params));
+    }
+
+    public Proxy call(String name, Proxy param)
+    {
+        Proxy[] params = new Proxy[1];
+        params[0] = param;
+
+        return this.call(name, params);
     }
 
     public Proxy call(String name, Proxy[] params)

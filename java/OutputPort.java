@@ -31,10 +31,7 @@ public class OutputPort
 
     public void setAlias(String alias)
     {
-        Object[] args = new Object[1];
-        args[0] = alias;
-
-        outputPortProxy.call("setAlias", args);
+        outputPortProxy.call("setAlias", alias);
     }
 
     public DType dtype()
@@ -79,50 +76,32 @@ public class OutputPort
 
     public void produce(long numElements)
     {
-        Object[] args = new Object[1];
-        args[0] = numElements;
-
-        outputPortProxy.call("produce", args);
+        outputPortProxy.call("produce", numElements);
     }
 
     public void popElements(long numElements)
     {
-        Object[] args = new Object[1];
-        args[0] = numElements;
-
-        outputPortProxy.call("popElements", args);
+        outputPortProxy.call("popElements", numElements);
     }
 
     public void postLabel(Label label)
     {
-        Object[] args = new Object[1];
-        args[0] = label.getProxy();
-
-        outputPortProxy.call("postLabel", args);
+        outputPortProxy.call("postLabel", label.getProxy());
     }
 
     public void postMessage(Object message)
     {
-        Object[] args = new Object[1];
-        args[0] = message;
-
-        outputPortProxy.call("postMessage", args);
+        outputPortProxy.call("postMessage", message);
     }
 
     public void postBuffer(ByteBuffer buffer)
     {
-        Object[] args = new Object[1];
-        args[0] = buffer;
-
-        outputPortProxy.call("postBuffer", args);
+        outputPortProxy.call("postBuffer", buffer);
     }
 
     public void setReserve(long numElements)
     {
-        Object[] args = new Object[1];
-        args[0] = numElements;
-
-        outputPortProxy.call("setReserve", args);
+        outputPortProxy.call("setReserve", numElements);
     }
 
     public boolean isSignal()
@@ -132,10 +111,7 @@ public class OutputPort
 
     public void setReadBeforeWrite(InputPort port)
     {
-        Object[] args = new Object[1];
-        args[0] = port.getProxy();
-
-        outputPortProxy.call("setReadBeforeWrite", args);
+        outputPortProxy.call("setReadBeforeWrite", port.getProxy());
     }
 
     public Proxy getProxy()

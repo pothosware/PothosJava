@@ -20,10 +20,7 @@ public class PothosStreamHandler extends StreamHandler
     {
         super();
 
-        Object[] args = new Object[1];
-        args[0] = name;
-
-        managedLoggerProxy = ManagedLoggerClass.call("()", args);
+        managedLoggerProxy = ManagedLoggerClass.call("()", name);
     }
 
     private boolean isLevelGreaterOrEqual(Level level1, Level level2)

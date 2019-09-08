@@ -20,10 +20,7 @@ public class DType
         ProxyEnvironment proxyEnvironment = new ProxyEnvironment("managed");
         Proxy managedDTypeClass = proxyEnvironment.findProxy("Pothos/DType");
 
-        Object[] args = new Object[1];
-        args[0] = markup;
-
-        dtypeProxy = managedDTypeClass.call("()", args);
+        dtypeProxy = managedDTypeClass.call("()", markup);
     }
 
     public DType(String alias, int dimension)

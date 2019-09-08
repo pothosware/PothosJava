@@ -31,10 +31,7 @@ public class InputPort
 
     public void setAlias(String alias)
     {
-        Object[] args = new Object[1];
-        args[0] = alias;
-
-        inputPortProxy.call("setAlias", args);
+        inputPortProxy.call("setAlias", alias);
     }
 
     public DType dtype()
@@ -89,18 +86,12 @@ public class InputPort
 
     public void removeLabel(Label label)
     {
-        Object[] args = new Object[1];
-        args[0] = label.getProxy();
-
-        inputPortProxy.call("removeLabel", args);
+        inputPortProxy.call("removeLabel", label.getProxy());
     }
 
     public void consume(long numElements)
     {
-        Object[] args = new Object[1];
-        args[0] = numElements;
-
-        inputPortProxy.call("consume", args);
+        inputPortProxy.call("consume", numElements);
     }
 
     public ByteBuffer takeBuffer()
@@ -125,26 +116,17 @@ public class InputPort
 
     public void pushBuffer(ByteBuffer buffer)
     {
-        Object[] args = new Object[1];
-        args[0] = buffer;
-
-        inputPortProxy.call("pushBuffer", args);
+        inputPortProxy.call("pushBuffer", buffer);
     }
 
     public void pushLabel(Label label)
     {
-        Object[] args = new Object[1];
-        args[0] = label.getProxy();
-
-        inputPortProxy.call("pushLabel", args);
+        inputPortProxy.call("pushLabel", label.getProxy());
     }
 
     public void pushMessage(Object message)
     {
-        Object[] args = new Object[1];
-        args[0] = message;
-
-        inputPortProxy.call("pushLabel", args);
+        inputPortProxy.call("pushLabel", message);
     }
 
     public void clear()

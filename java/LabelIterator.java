@@ -29,12 +29,9 @@ public class LabelIterator implements Iterator<Label>
             throw new NoSuchElementException(""+length);
         }
 
-        Object[] args = new Object[1];
-        args[0] = (index++);
-
         Proxy indexedProxy = labelIteratorProxy
                                  .call("begin")
-                                 .call("[]", args);
+                                 .call("[]", (index++));
 
         return new Label(indexedProxy);
     }
