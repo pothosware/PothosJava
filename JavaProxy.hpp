@@ -1,4 +1,5 @@
 // Copyright (c) 2013-2014 Josh Blum
+//                    2019 Nicholas Corgan
 // SPDX-License-Identifier: BSL-1.0
 
 #pragma once
@@ -6,6 +7,7 @@
 #include <Pothos/Proxy.hpp>
 #include <Pothos/Callable.hpp>
 #include <jni.h>
+#include <vector>
 
 class JavaProxyHandle;
 
@@ -49,6 +51,7 @@ public:
 
     void serialize(const Pothos::Proxy &, std::ostream &);
     Pothos::Proxy deserialize(std::istream &);
+    Pothos::Object convertProxyToObject(const Pothos::Proxy &proxy_);
 
     JavaVM *jvm;       /* pointer to open virtual machine */
     JNIEnv *env;       /* pointer to native method interface */
@@ -74,6 +77,7 @@ public:
     size_t hashCode(void) const;
     std::string toString(void) const;
     std::string getClassName(void) const;
+    std::vector<std::string> getInheritance(void) const;
 
     std::shared_ptr<JavaProxyEnvironment> env;
 
@@ -90,4 +94,18 @@ public:
 
     //convert internal jvalue which may be a primitive to equivalent jobject
     jobject toJobject(void) const;
+
+    // A list of classes that make up this object's inheritance.
+    std::vector<std::string> inheritance;
+
+    // How many superclasses to climb up to get the return value for
+    // getClassName().
+    size_t getClassNameDepth;
+
+    inline bool hasSuperclass(void) const
+    {
+        return (getClassNameDepth < (inheritance.size()-1));
+    }
+
+    Pothos::Proxy getProxyWithSuperclassName(void) const;
 };

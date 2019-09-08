@@ -1,7 +1,11 @@
 // Copyright (c) 2013-2015 Josh Blum
+//                    2019 Nicholas Corgan
 // SPDX-License-Identifier: BSL-1.0
 
+#include "JavaProxy.hpp"
+
 #include <Pothos/Testing.hpp>
+#include <Pothos/Framework.hpp>
 #include <Pothos/Proxy.hpp>
 #include <iostream>
 #include <vector>
@@ -236,4 +240,59 @@ POTHOS_TEST_BLOCK("/proxy/java/tests", test_serialization)
     auto find1 = resultDict.find(env->makeProxy(1));
     POTHOS_TEST_TRUE(find1 != resultDict.end());
     POTHOS_TEST_EQUAL(find1->second.convert<int>(), 2);
+}
+
+POTHOS_TEST_BLOCK("/proxy/java/tests", test_get_inheritance)
+{
+    auto env = Pothos::ProxyEnvironment::make("java");
+
+    const std::vector<std::string> expectedInheritance =
+    {
+        "java.io.PipedInputStream",
+        "java.io.InputStream",
+        "java.lang.Object"
+    };
+    const std::string& startClassName = expectedInheritance.front();
+
+    auto startClassInstance = env->findProxy(startClassName).call("new");
+    auto javaHandle = std::dynamic_pointer_cast<JavaProxyHandle>(startClassInstance.getHandle());
+    auto inheritance = javaHandle->getInheritance();
+
+    POTHOS_TEST_EQUALV(expectedInheritance, inheritance);
+}
+
+template <typename T>
+static void testBufferChunkConversion(Pothos::ProxyEnvironment::Sptr env)
+{
+    const Pothos::DType dtype(typeid(T));
+    std::cout << "Testing " << dtype.toString() << std::endl;
+
+    Pothos::BufferChunk buffIn(dtype, 128);
+    for(size_t i = 0; i < buffIn.elements(); ++i)
+    {
+        buffIn.as<T*>()[i] = T(std::rand() % 100);
+    }
+
+    // Convert into a Java direct buffer.
+    auto javaBuff = env->makeProxy(buffIn);
+
+    // Convert back and check for equality.
+    const auto buffOut = javaBuff.convert<Pothos::BufferChunk>();
+    POTHOS_TEST_EQUAL(buffIn.dtype, buffOut.dtype);
+    POTHOS_TEST_EQUALA(
+        buffIn.as<const T*>(),
+        buffOut.as<const T*>(),
+        buffOut.elements());
+}
+
+POTHOS_TEST_BLOCK("/proxy/java/tests", test_bufferchunk_conversion)
+{
+    auto env = Pothos::ProxyEnvironment::make("java");
+
+    testBufferChunkConversion<std::int8_t>(env);
+    testBufferChunkConversion<std::int16_t>(env);
+    testBufferChunkConversion<std::int32_t>(env);
+    testBufferChunkConversion<std::int64_t>(env);
+    testBufferChunkConversion<float>(env);
+    testBufferChunkConversion<double>(env);
 }

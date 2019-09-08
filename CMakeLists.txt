@@ -57,6 +57,7 @@ set(SOURCES
     JavaHelper.cpp
     JavaHandle.cpp
     Containers.cpp
+    FrameworkTypes.cpp
 
     jni/ProxyJNI.cpp
     jni/ProxyEnvironmentJNI.cpp
