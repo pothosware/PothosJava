@@ -58,6 +58,7 @@ set(SOURCES
     JavaHandle.cpp
     Containers.cpp
     FrameworkTypes.cpp
+    JavaBlock.cpp
     JavaLogger.cpp
 
     jni/ProxyJNI.cpp
