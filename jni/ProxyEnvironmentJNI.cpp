@@ -8,6 +8,8 @@
 
 #include <jni.h>
 
+#include <functional>
+
 /*
  * Class:     Pothos_ProxyEnvironment
  * Method:    getLocalUniquePid
@@ -90,7 +92,11 @@ JNIEXPORT jlong JNICALL Java_Pothos_ProxyEnvironment_findProxyJNI
  * Signature: (J)I
  */
 JNIEXPORT jint JNICALL Java_Pothos_ProxyEnvironment_hashCodeJNI
-  (JNIEnv *, jclass, jlong);
+  (JNIEnv *, jclass, jlong handle)
+{
+    auto* pNativeEnvSPtr = jlongToPtr<Pothos::ProxyEnvironment::Sptr>(handle);
+    return static_cast<jint>(std::hash<std::string>{}((*pNativeEnvSPtr)->getName()));
+}
 
 /*
  * Class:     Pothos_ProxyEnvironment
