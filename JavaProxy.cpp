@@ -5,9 +5,14 @@
 #include "JavaProxy.hpp"
 #include <Pothos/Callable.hpp>
 #include <Pothos/Plugin.hpp>
+#include <Pothos/System/Paths.hpp>
 #include <iostream>
 #include <Poco/Format.h>
+#include <Poco/RecursiveDirectoryIterator.h>
+#include <Poco/Format.h>
+#include <Poco/Path.h>
 #include <Poco/SingletonHolder.h>
+#include <Poco/String.h>
 #include <cstdint>
 #include <mutex>
 
@@ -48,6 +53,55 @@ static MyJvmWrapper &getJvmWrapper(void)
 /***********************************************************************
  * JavaProxyEnvironment - create JVM and JNIEnv
  **********************************************************************/
+
+static Poco::Path getModulesDir()
+{
+    return Poco::Path(Pothos::System::getPothosDevLibraryPath())
+               .append("Pothos")
+               .append("modules" + Pothos::System::getAbiVersion())
+               .absolute();
+}
+
+static std::vector<std::string> getAllJARFiles()
+{
+    Poco::Path dirPath(getModulesDir());
+
+    std::vector<std::string> jarFiles;
+    Poco::SimpleRecursiveDirectoryIterator end;
+    for(Poco::SimpleRecursiveDirectoryIterator dirIter(dirPath);
+        dirIter != end;
+        ++dirIter)
+    {
+        Poco::Path path(dirIter->path());
+
+        if(path.getExtension() == ".jar")
+        {
+            jarFiles.emplace_back(path.toString());
+        }
+    }
+
+    return jarFiles;
+}
+
+static std::string getJavaClassPathParameter()
+{
+    std::string pathSeparatorString;
+    pathSeparatorString.push_back(Poco::Path::pathSeparator());
+
+    auto jarFiles = getAllJARFiles();
+    auto appendedJARFiles = Poco::cat(
+                                 pathSeparatorString,
+                                 jarFiles.begin(),
+                                 jarFiles.end());
+    std::string ret;
+    if(!appendedJARFiles.empty())
+    {
+        ret = "-Djava.class.path=" + appendedJARFiles;
+    }
+
+    return ret;
+}
+
 JavaProxyEnvironment::JavaProxyEnvironment(const Pothos::ProxyEnvironmentArgs &args)
 {
     std::lock_guard<std::mutex> lock(getJvmMutex());
@@ -67,6 +121,13 @@ JavaProxyEnvironment::JavaProxyEnvironment(const Pothos::ProxyEnvironmentArgs &a
             optionsManaged.push_back("-D" + entry.first + "=" + entry.second);
         }
         optionsManaged.push_back("-verbose:jni");
+
+        std::string classPathParam = getJavaClassPathParameter();
+        if(!classPathParam.empty())
+        {
+            optionsManaged.emplace_back(std::move(classPathParam));
+        }
+
         JavaVMOption* options = new JavaVMOption[optionsManaged.size()];
         for (size_t i = 0; i < optionsManaged.size(); i++)
         {
