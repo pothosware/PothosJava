@@ -73,7 +73,7 @@ static std::vector<std::string> getAllJARFiles()
     {
         Poco::Path path(dirIter->path());
 
-        if(path.getExtension() == ".jar")
+        if(path.getExtension() == "jar")
         {
             jarFiles.emplace_back(path.toString());
         }
