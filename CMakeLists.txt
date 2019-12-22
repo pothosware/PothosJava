@@ -65,6 +65,7 @@ set(SOURCES
     jni/ProxyEnvironmentJNI.cpp
 
     TestJava.cpp
+    TestJavaBlock.cpp
 )
 
 POTHOS_MODULE_UTIL(

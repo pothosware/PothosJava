@@ -89,9 +89,9 @@ static std::string getJavaClassPathParameter()
 
     auto jarFiles = getAllJARFiles();
     auto appendedJARFiles = Poco::cat(
-                                 pathSeparatorString,
-                                 jarFiles.begin(),
-                                 jarFiles.end());
+                                pathSeparatorString,
+                                jarFiles.begin(),
+                                jarFiles.end());
     std::string ret;
     if(!appendedJARFiles.empty())
     {
