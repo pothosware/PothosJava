@@ -54,6 +54,14 @@ static MyJvmWrapper &getJvmWrapper(void)
  * JavaProxyEnvironment - create JVM and JNIEnv
  **********************************************************************/
 
+static std::string getPathSeparator()
+{
+    std::string pathSeparatorString;
+    pathSeparatorString.push_back(Poco::Path::pathSeparator());
+
+    return pathSeparatorString;
+}
+
 static Poco::Path getModulesDir()
 {
     return Poco::Path(Pothos::System::getPothosDevLibraryPath())
@@ -85,12 +93,9 @@ static std::vector<std::string> getAllJARFiles()
 
 static std::string getJavaClassPathParameter()
 {
-    std::string pathSeparatorString;
-    pathSeparatorString.push_back(Poco::Path::pathSeparator());
-
     auto jarFiles = getAllJARFiles();
     auto appendedJARFiles = Poco::cat(
-                                pathSeparatorString,
+                                getPathSeparator(),
                                 jarFiles.begin(),
                                 jarFiles.end());
     std::string ret;
@@ -100,6 +105,25 @@ static std::string getJavaClassPathParameter()
     }
 
     return ret;
+}
+
+static std::string getJavaLibraryPathParameter()
+{
+    const auto modulesDir = getModulesDir().toString();
+    const auto proxyEnvDir = Poco::Path(modulesDir).append("proxy/environment").toString();
+
+    const std::vector<std::string> paths =
+    {
+        ".",
+        modulesDir,
+        proxyEnvDir
+    };
+    const auto appendedDirs = Poco::cat(
+                                  getPathSeparator(),
+                                  paths.begin(),
+                                  paths.end());
+
+    return "-Djava.library.path=" + appendedDirs;
 }
 
 JavaProxyEnvironment::JavaProxyEnvironment(const Pothos::ProxyEnvironmentArgs &args)
@@ -120,20 +144,19 @@ JavaProxyEnvironment::JavaProxyEnvironment(const Pothos::ProxyEnvironmentArgs &a
         {
             optionsManaged.push_back("-D" + entry.first + "=" + entry.second);
         }
-        optionsManaged.push_back("-verbose:jni");
 
         std::string classPathParam = getJavaClassPathParameter();
         if(!classPathParam.empty())
         {
-            auto& logger = Poco::Logger::get("Java Init");
-            poco_information_f1(logger, "CLASSPATH param: %s", classPathParam);
-
             optionsManaged.emplace_back(std::move(classPathParam));
         }
+        optionsManaged.emplace_back(getJavaLibraryPathParameter());
 
+        auto& logger = Poco::Logger::get("PothosJava");
         JavaVMOption* options = new JavaVMOption[optionsManaged.size()];
         for (size_t i = 0; i < optionsManaged.size(); i++)
         {
+            poco_information(logger, optionsManaged[i]);
             options[i].optionString = (char *)optionsManaged[i].c_str();
         }
         vm_args.version = JNI_VERSION_1_6;
