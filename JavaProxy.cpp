@@ -9,6 +9,7 @@
 #include <iostream>
 #include <Poco/RecursiveDirectoryIterator.h>
 #include <Poco/Format.h>
+#include <Poco/Logger.h>
 #include <Poco/Path.h>
 #include <Poco/SingletonHolder.h>
 #include <Poco/String.h>
@@ -124,6 +125,9 @@ JavaProxyEnvironment::JavaProxyEnvironment(const Pothos::ProxyEnvironmentArgs &a
         std::string classPathParam = getJavaClassPathParameter();
         if(!classPathParam.empty())
         {
+            auto& logger = Poco::Logger::get("Java Init");
+            poco_information_f1(logger, "CLASSPATH param: %s", classPathParam);
+
             optionsManaged.emplace_back(std::move(classPathParam));
         }
 
@@ -133,7 +137,7 @@ JavaProxyEnvironment::JavaProxyEnvironment(const Pothos::ProxyEnvironmentArgs &a
             options[i].optionString = (char *)optionsManaged[i].c_str();
         }
         vm_args.version = JNI_VERSION_1_6;
-        vm_args.nOptions = args.size();
+        vm_args.nOptions = optionsManaged.size();
         vm_args.options = options;
         vm_args.ignoreUnrecognized = false;
         /* load and initialize a Java VM, return a JNI interface
