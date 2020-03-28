@@ -125,7 +125,7 @@ JavaProxyEnvironment::JavaProxyEnvironment(const Pothos::ProxyEnvironmentArgs &a
     MyJvmWrapper &wrapper = getJvmWrapper();
     if (wrapper.jvm != nullptr)
     {
-        jint ret = wrapper.jvm->GetEnv((void**)&env, JNI_VERSION_1_6);
+        jint ret = wrapper.jvm->GetEnv((void**)&env, JNI_VERSION_1_8);
         if (ret < 0) throw Pothos::ProxyEnvironmentFactoryError("JavaProxyEnvironment::GetEnv()");
     }
 
@@ -137,6 +137,7 @@ JavaProxyEnvironment::JavaProxyEnvironment(const Pothos::ProxyEnvironmentArgs &a
         {
             optionsManaged.push_back("-D" + entry.first + "=" + entry.second);
         }
+        optionsManaged.emplace_back("-verbose");
 
         std::string classPathParam = getJavaClassPathParameter();
         if(!classPathParam.empty())
@@ -152,10 +153,10 @@ JavaProxyEnvironment::JavaProxyEnvironment(const Pothos::ProxyEnvironmentArgs &a
             poco_information(logger, optionsManaged[i]);
             options[i].optionString = (char *)optionsManaged[i].c_str();
         }
-        vm_args.version = JNI_VERSION_1_6;
+        vm_args.version = JNI_VERSION_1_8;
         vm_args.nOptions = optionsManaged.size();
         vm_args.options = options;
-        vm_args.ignoreUnrecognized = false;
+        vm_args.ignoreUnrecognized = JNI_FALSE;
         /* load and initialize a Java VM, return a JNI interface
          * pointer in env */
         jint ret = JNI_CreateJavaVM(&wrapper.jvm, (void**)&env, &vm_args);

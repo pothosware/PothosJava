@@ -4,11 +4,15 @@
 #include "../JavaProxy.hpp"
 #include "JNIUtility.hpp"
 
+#include <Pothos/Exception.hpp>
 #include <Pothos/Proxy/Environment.hpp>
+
+#include <Poco/Exception.h>
 
 #include <jni.h>
 
 #include <functional>
+#include <iostream>
 
 extern "C"
 {
@@ -19,9 +23,14 @@ extern "C"
  * Signature: ()Ljava/lang/String;
  */
 JNIEXPORT jstring JNICALL Java_Pothos_ProxyEnvironment_getLocalUniquePid
-  (JNIEnv *, jclass)
+  (JNIEnv * env, jclass)
 {
-    return Pothos::Object(Pothos::ProxyEnvironment::getLocalUniquePid()).convert<jstring>();
+    POTHOS_SAFE_JNI
+    (
+        return Pothos::Object(Pothos::ProxyEnvironment::getLocalUniquePid()).convert<jstring>();
+    )
+
+    return env->NewStringUTF("");
 }
 
 /*
@@ -30,10 +39,15 @@ JNIEXPORT jstring JNICALL Java_Pothos_ProxyEnvironment_getLocalUniquePid
  * Signature: (J)Ljava/lang/String;
  */
 JNIEXPORT jstring JNICALL Java_Pothos_ProxyEnvironment_getNodeIdJNI
-  (JNIEnv *, jclass, jlong handle)
+  (JNIEnv * env, jclass, jlong handle)
 {
-    auto* pNativeEnvSPtr = jlongToPtr<Pothos::ProxyEnvironment::Sptr>(handle);
-    return Pothos::Object((*pNativeEnvSPtr)->getNodeId()).convert<jstring>();
+    POTHOS_SAFE_JNI
+    (
+        auto* pNativeEnvSPtr = jlongToPtr<Pothos::ProxyEnvironment::Sptr>(handle);
+        return Pothos::Object((*pNativeEnvSPtr)->getNodeId()).convert<jstring>();
+    )
+
+    return env->NewStringUTF("");
 }
 
 /*
@@ -42,10 +56,15 @@ JNIEXPORT jstring JNICALL Java_Pothos_ProxyEnvironment_getNodeIdJNI
  * Signature: (J)Ljava/lang/String;
  */
 JNIEXPORT jstring JNICALL Java_Pothos_ProxyEnvironment_getUniquePidJNI
-  (JNIEnv *, jclass, jlong handle)
+  (JNIEnv * env, jclass, jlong handle)
 {
-    auto* pNativeEnvSPtr = jlongToPtr<Pothos::ProxyEnvironment::Sptr>(handle);
-    return Pothos::Object((*pNativeEnvSPtr)->getUniquePid()).convert<jstring>();
+    POTHOS_SAFE_JNI
+    (
+        auto* pNativeEnvSPtr = jlongToPtr<Pothos::ProxyEnvironment::Sptr>(handle);
+        return Pothos::Object((*pNativeEnvSPtr)->getUniquePid()).convert<jstring>();
+    )
+
+    return env->NewStringUTF("");
 }
 
 /*
@@ -54,10 +73,15 @@ JNIEXPORT jstring JNICALL Java_Pothos_ProxyEnvironment_getUniquePidJNI
  * Signature: (J)Ljava/lang/String;
  */
 JNIEXPORT jstring JNICALL Java_Pothos_ProxyEnvironment_getPeeringAddressJNI
-  (JNIEnv *, jclass, jlong handle)
+  (JNIEnv * env, jclass, jlong handle)
 {
-    auto* pNativeEnvSPtr = jlongToPtr<Pothos::ProxyEnvironment::Sptr>(handle);
-    return Pothos::Object((*pNativeEnvSPtr)->getPeeringAddress()).convert<jstring>();
+    POTHOS_SAFE_JNI
+    (
+        auto* pNativeEnvSPtr = jlongToPtr<Pothos::ProxyEnvironment::Sptr>(handle);
+        return Pothos::Object((*pNativeEnvSPtr)->getPeeringAddress()).convert<jstring>();
+    )
+
+    return env->NewStringUTF("");
 }
 
 /*
@@ -66,10 +90,15 @@ JNIEXPORT jstring JNICALL Java_Pothos_ProxyEnvironment_getPeeringAddressJNI
  * Signature: (J)Ljava/lang/String;
  */
 JNIEXPORT jstring JNICALL Java_Pothos_ProxyEnvironment_getNameJNI
-  (JNIEnv *, jclass, jlong handle)
+  (JNIEnv * env, jclass, jlong handle)
 {
-    auto* pNativeEnvSPtr = jlongToPtr<Pothos::ProxyEnvironment::Sptr>(handle);
-    return Pothos::Object((*pNativeEnvSPtr)->getName()).convert<jstring>();
+    POTHOS_SAFE_JNI
+    (
+        auto* pNativeEnvSPtr = jlongToPtr<Pothos::ProxyEnvironment::Sptr>(handle);
+        return Pothos::Object((*pNativeEnvSPtr)->getName()).convert<jstring>();
+    )
+
+    return env->NewStringUTF("");
 }
 
 /*
@@ -78,15 +107,20 @@ JNIEXPORT jstring JNICALL Java_Pothos_ProxyEnvironment_getNameJNI
  * Signature: (JLjava/lang/String;)J
  */
 JNIEXPORT jlong JNICALL Java_Pothos_ProxyEnvironment_findProxyJNI
-  (JNIEnv *, jclass, jlong handle, jstring name)
+  (JNIEnv * env, jclass, jlong handle, jstring name)
 {
-    auto* pNativeEnvSPtr = jlongToPtr<Pothos::ProxyEnvironment::Sptr>(handle);
-    auto nativeName = (*pNativeEnvSPtr)->makeProxy(name).convert<std::string>();
+    POTHOS_SAFE_JNI
+    (
+        auto* pNativeEnvSPtr = jlongToPtr<Pothos::ProxyEnvironment::Sptr>(handle);
+        auto nativeName = (*pNativeEnvSPtr)->makeProxy(name).convert<std::string>();
 
-    Pothos::Proxy* pNewProxy = Pothos::Proxy();
-    *pNewProxy = (*pNativeEnvSPtr)->findProxy(nativeName);
+        Pothos::Proxy* pNewProxy = Pothos::Proxy();
+        *pNewProxy = (*pNativeEnvSPtr)->findProxy(nativeName);
 
-    return ptrToJLong(pNewProxy);
+        return ptrToJLong(pNewProxy);
+    )
+
+    return 0;
 }
 
 /*
@@ -95,10 +129,15 @@ JNIEXPORT jlong JNICALL Java_Pothos_ProxyEnvironment_findProxyJNI
  * Signature: (J)I
  */
 JNIEXPORT jint JNICALL Java_Pothos_ProxyEnvironment_hashCodeJNI
-  (JNIEnv *, jclass, jlong handle)
+  (JNIEnv * env, jclass, jlong handle)
 {
-    auto* pNativeEnvSPtr = jlongToPtr<Pothos::ProxyEnvironment::Sptr>(handle);
-    return static_cast<jint>(std::hash<std::string>{}((*pNativeEnvSPtr)->getName()));
+    POTHOS_SAFE_JNI
+    (
+        auto* pNativeEnvSPtr = jlongToPtr<Pothos::ProxyEnvironment::Sptr>(handle);
+        return static_cast<jint>(std::hash<std::string>{}((*pNativeEnvSPtr)->getName()));
+    )
+
+    return 0;
 }
 
 /*
@@ -107,12 +146,17 @@ JNIEXPORT jint JNICALL Java_Pothos_ProxyEnvironment_hashCodeJNI
  * Signature: (JJ)Z
  */
 JNIEXPORT jboolean JNICALL Java_Pothos_ProxyEnvironment_equalsJNI
-  (JNIEnv *, jclass, jlong handle1, jlong handle2)
+  (JNIEnv * env, jclass, jlong handle1, jlong handle2)
 {
-    auto* pNativeEnvSPtr1 = jlongToPtr<Pothos::ProxyEnvironment::Sptr>(handle1);
-    auto* pNativeEnvSPtr2 = jlongToPtr<Pothos::ProxyEnvironment::Sptr>(handle2);
+    POTHOS_SAFE_JNI
+    (
+        auto* pNativeEnvSPtr1 = jlongToPtr<Pothos::ProxyEnvironment::Sptr>(handle1);
+        auto* pNativeEnvSPtr2 = jlongToPtr<Pothos::ProxyEnvironment::Sptr>(handle2);
 
-    return ((*pNativeEnvSPtr1)->getName() == (*pNativeEnvSPtr2)->getName());
+        return ((*pNativeEnvSPtr1)->getName() == (*pNativeEnvSPtr2)->getName());
+    )
+
+    return JNI_FALSE;
 }
 
 /*
@@ -121,16 +165,20 @@ JNIEXPORT jboolean JNICALL Java_Pothos_ProxyEnvironment_equalsJNI
  * Signature: (Ljava/lang/String;)J
  */
 JNIEXPORT jlong JNICALL Java_Pothos_ProxyEnvironment_allocateJNI__Ljava_lang_String_2
-  (JNIEnv *, jclass, jstring name)
+  (JNIEnv * env, jclass, jstring name)
 {
-    auto javaEnvSPtr = Pothos::ProxyEnvironment::make("java");
-    auto nativeName = javaEnvSPtr->makeProxy(name)
-                          .convert<std::string>();
+    POTHOS_SAFE_JNI
+    (
+        auto javaEnvSPtr = Pothos::ProxyEnvironment::make("java");
+        auto nativeName = javaEnvSPtr->makeProxy(name).convert<std::string>();
 
-    auto* pNewProxyEnvironment = new Pothos::ProxyEnvironment::Sptr();
-    *pNewProxyEnvironment = Pothos::ProxyEnvironment::make(nativeName);
+        auto* pNewProxyEnvironment = new Pothos::ProxyEnvironment::Sptr();
+        *pNewProxyEnvironment = Pothos::ProxyEnvironment::make(nativeName);
 
-    return ptrToJLong(pNewProxyEnvironment);
+        return ptrToJLong(pNewProxyEnvironment);
+    )
+
+    return 0;
 }
 
 
@@ -140,18 +188,23 @@ JNIEXPORT jlong JNICALL Java_Pothos_ProxyEnvironment_allocateJNI__Ljava_lang_Str
  * Signature: (Ljava/lang/String;Ljava/util/HashMap;)J
  */
 JNIEXPORT jlong JNICALL Java_Pothos_ProxyEnvironment_allocateJNI__Ljava_lang_String_2Ljava_util_HashMap_2
-  (JNIEnv *, jclass, jstring name, jobject proxyEnvironmentArgs)
+  (JNIEnv * env, jclass, jstring name, jobject proxyEnvironmentArgs)
 {
-    auto javaEnvSPtr = Pothos::ProxyEnvironment::make("java");
-    auto nativeName = javaEnvSPtr->makeProxy(name)
-                          .convert<std::string>();
-    auto nativeArgs = javaEnvSPtr->makeProxy(proxyEnvironmentArgs)
-                          .convert<Pothos::ProxyEnvironmentArgs>();
+    POTHOS_SAFE_JNI
+    (
+        auto javaEnvSPtr = Pothos::ProxyEnvironment::make("java");
+        auto nativeName = javaEnvSPtr->makeProxy(name)
+                              .convert<std::string>();
+        auto nativeArgs = javaEnvSPtr->makeProxy(proxyEnvironmentArgs)
+                              .convert<Pothos::ProxyEnvironmentArgs>();
 
-    auto* pNewProxyEnvironment = new Pothos::ProxyEnvironment::Sptr();
-    *pNewProxyEnvironment = Pothos::ProxyEnvironment::make(nativeName, nativeArgs);
+        auto* pNewProxyEnvironment = new Pothos::ProxyEnvironment::Sptr();
+        *pNewProxyEnvironment = Pothos::ProxyEnvironment::make(nativeName, nativeArgs);
 
-    return ptrToJLong(pNewProxyEnvironment);
+        return ptrToJLong(pNewProxyEnvironment);
+    )
+
+    return 0;
 }
 
 }

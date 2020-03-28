@@ -17,14 +17,19 @@ extern "C"
  * Signature: (J)J
  */
 JNIEXPORT jlong JNICALL Java_Pothos_Proxy_getEnvironmentJNI
-  (JNIEnv *, jclass, jlong handle)
+  (JNIEnv * env, jclass, jlong handle)
 {
-    auto* pNativeProxy = jlongToPtr<Pothos::Proxy>(handle);
+    POTHOS_SAFE_JNI
+    (
+        auto* pNativeProxy = jlongToPtr<Pothos::Proxy>(handle);
 
-    auto* pNewEnvironmentSPtr = new Pothos::ProxyEnvironment::Sptr();
-    *pNewEnvironmentSPtr = pNativeProxy->getEnvironment();
+        auto* pNewEnvironmentSPtr = new Pothos::ProxyEnvironment::Sptr();
+        *pNewEnvironmentSPtr = pNativeProxy->getEnvironment();
 
-    return ptrToJLong(pNewEnvironmentSPtr);
+        return ptrToJLong(pNewEnvironmentSPtr);
+    )
+
+    return 0;
 }
 
 /*
@@ -33,15 +38,20 @@ JNIEXPORT jlong JNICALL Java_Pothos_Proxy_getEnvironmentJNI
  * Signature: (JLjava/lang/String;)J
  */
 JNIEXPORT jlong JNICALL Java_Pothos_Proxy_callJNI__JLjava_lang_String_2
-  (JNIEnv *, jclass, jlong handle, jstring name)
+  (JNIEnv * env, jclass, jlong handle, jstring name)
 {
-    auto* pNativeProxy = jlongToPtr<Pothos::Proxy>(handle);
-    auto nativeName = Pothos::Object(name).convert<std::string>();
+    POTHOS_SAFE_JNI
+    (
+        auto* pNativeProxy = jlongToPtr<Pothos::Proxy>(handle);
+        auto nativeName = Pothos::Object(name).convert<std::string>();
 
-    Pothos::Proxy* pNewProxy = new Pothos::Proxy();
-    *pNewProxy = pNativeProxy->call(nativeName, nullptr, 0);
+        Pothos::Proxy* pNewProxy = new Pothos::Proxy();
+        *pNewProxy = pNativeProxy->call(nativeName, nullptr, 0);
 
-    return ptrToJLong(pNewProxy);
+        return ptrToJLong(pNewProxy);
+    )
+
+    return 0;
 }
 
 /*
@@ -50,20 +60,25 @@ JNIEXPORT jlong JNICALL Java_Pothos_Proxy_callJNI__JLjava_lang_String_2
  * Signature: (JLjava/lang/String;[Ljava/lang/Object;)J
  */
 JNIEXPORT jlong JNICALL Java_Pothos_Proxy_callJNI__JLjava_lang_String_2_3Ljava_lang_Object_2
-  (JNIEnv *, jclass, jlong handle, jstring name, jobjectArray params)
+  (JNIEnv * env, jclass, jlong handle, jstring name, jobjectArray params)
 {
-    auto* pNativeProxy = jlongToPtr<Pothos::Proxy>(handle);
-    auto nativeName = Pothos::Object(name).convert<std::string>();
+    POTHOS_SAFE_JNI
+    (
+        auto* pNativeProxy = jlongToPtr<Pothos::Proxy>(handle);
+        auto nativeName = Pothos::Object(name).convert<std::string>();
 
-    auto proxyVector = Pothos::Object(params).convert<Pothos::ProxyVector>();
+        auto proxyVector = Pothos::Object(params).convert<Pothos::ProxyVector>();
 
-    Pothos::Proxy* pNewProxy = new Pothos::Proxy();
-    *pNewProxy = pNativeProxy->getHandle()->call(
-                     nativeName,
-                     proxyVector.data(),
-                     proxyVector.size());
+        Pothos::Proxy* pNewProxy = new Pothos::Proxy();
+        *pNewProxy = pNativeProxy->getHandle()->call(
+                         nativeName,
+                         proxyVector.data(),
+                         proxyVector.size());
 
-    return ptrToJLong(pNewProxy);
+        return ptrToJLong(pNewProxy);
+    )
+
+    return 0;
 }
 
 /*
@@ -72,15 +87,20 @@ JNIEXPORT jlong JNICALL Java_Pothos_Proxy_callJNI__JLjava_lang_String_2_3Ljava_l
  * Signature: (JLjava/lang/String;)J
  */
 JNIEXPORT jlong JNICALL Java_Pothos_Proxy_getJNI
-  (JNIEnv *, jclass, jlong handle, jstring field)
+  (JNIEnv * env, jclass, jlong handle, jstring field)
 {
-    auto* pNativeProxy = jlongToPtr<Pothos::Proxy>(handle);
-    auto nativeField = Pothos::Object(field).convert<std::string>();
+    POTHOS_SAFE_JNI
+    (
+        auto* pNativeProxy = jlongToPtr<Pothos::Proxy>(handle);
+        auto nativeField = Pothos::Object(field).convert<std::string>();
 
-    Pothos::Proxy* pNewProxy = new Pothos::Proxy();
-    *pNewProxy = pNativeProxy->get(nativeField);
+        Pothos::Proxy* pNewProxy = new Pothos::Proxy();
+        *pNewProxy = pNativeProxy->get(nativeField);
 
-    return ptrToJLong(pNewProxy);
+        return ptrToJLong(pNewProxy);
+    )
+
+    return 0;
 }
 
 /*
@@ -89,15 +109,18 @@ JNIEXPORT jlong JNICALL Java_Pothos_Proxy_getJNI
  * Signature: (JLjava/lang/String;Ljava/lang/Object;)V
  */
 JNIEXPORT void JNICALL Java_Pothos_Proxy_setObjectJNI
-  (JNIEnv *, jclass, jlong handle, jstring field, jobject value)
+  (JNIEnv * env, jclass, jlong handle, jstring field, jobject value)
 {
-    auto* pNativeProxy = jlongToPtr<Pothos::Proxy>(handle);
-    auto nativeField = Pothos::Object(field).convert<std::string>();
+    POTHOS_SAFE_JNI
+    (
+        auto* pNativeProxy = jlongToPtr<Pothos::Proxy>(handle);
+        auto nativeField = Pothos::Object(field).convert<std::string>();
 
-    auto javaEnv = std::dynamic_pointer_cast<JavaProxyEnvironment>(pNativeProxy->getEnvironment());
-    auto valueProxy = javaEnv->makeHandle(value);
+        auto javaEnv = std::dynamic_pointer_cast<JavaProxyEnvironment>(pNativeProxy->getEnvironment());
+        auto valueProxy = javaEnv->makeHandle(value);
 
-    pNativeProxy->set(nativeField, valueProxy);
+        pNativeProxy->set(nativeField, valueProxy);
+    )
 }
 
 /*
@@ -106,13 +129,16 @@ JNIEXPORT void JNICALL Java_Pothos_Proxy_setObjectJNI
  * Signature: (JLjava/lang/String;J)V
  */
 JNIEXPORT void JNICALL Java_Pothos_Proxy_setProxyJNI
-  (JNIEnv *, jclass, jlong handle, jstring field, jlong valueHandle)
+  (JNIEnv * env, jclass, jlong handle, jstring field, jlong valueHandle)
 {
-    auto* pNativeProxy = jlongToPtr<Pothos::Proxy>(handle);
-    auto nativeField = Pothos::Object(field).convert<std::string>();
-    auto* pValueProxy = jlongToPtr<Pothos::Proxy>(valueHandle);
+    POTHOS_SAFE_JNI
+    (
+        auto* pNativeProxy = jlongToPtr<Pothos::Proxy>(handle);
+        auto nativeField = Pothos::Object(field).convert<std::string>();
+        auto* pValueProxy = jlongToPtr<Pothos::Proxy>(valueHandle);
 
-    pNativeProxy->set(nativeField, (*pValueProxy));
+        pNativeProxy->set(nativeField, (*pValueProxy));
+    )
 }
 
 /*
@@ -121,12 +147,17 @@ JNIEXPORT void JNICALL Java_Pothos_Proxy_setProxyJNI
  * Signature: (J)Ljava/lang/Object;
  */
 JNIEXPORT jobject JNICALL Java_Pothos_Proxy_toObjectJNI
-  (JNIEnv *, jclass, jlong handle)
+  (JNIEnv * env, jclass, jlong handle)
 {
-    auto* pNativeProxy = jlongToPtr<Pothos::Proxy>(handle);
-    auto javaHandle = std::dynamic_pointer_cast<JavaProxyHandle>(pNativeProxy->getHandle());
+    POTHOS_SAFE_JNI
+    (
+        auto* pNativeProxy = jlongToPtr<Pothos::Proxy>(handle);
+        auto javaHandle = std::dynamic_pointer_cast<JavaProxyHandle>(pNativeProxy->getHandle());
 
-    return javaHandle->toJobject();
+        return javaHandle->toJobject();
+    )
+
+    return env->NewStringUTF("");
 }
 
 /*
@@ -135,10 +166,15 @@ JNIEXPORT jobject JNICALL Java_Pothos_Proxy_toObjectJNI
  * Signature: (J)Ljava/lang/String;
  */
 JNIEXPORT jstring JNICALL Java_Pothos_Proxy_getClassNameJNI
-  (JNIEnv *, jclass, jlong handle)
+  (JNIEnv * env, jclass, jlong handle)
 {
-    auto* pNativeProxy = jlongToPtr<Pothos::Proxy>(handle);
-    return Pothos::Object(pNativeProxy->getClassName()).convert<jstring>();
+    POTHOS_SAFE_JNI
+    (
+        auto* pNativeProxy = jlongToPtr<Pothos::Proxy>(handle);
+        return Pothos::Object(pNativeProxy->getClassName()).convert<jstring>();
+    )
+
+    return env->NewStringUTF("");
 }
 
 /*
@@ -147,10 +183,15 @@ JNIEXPORT jstring JNICALL Java_Pothos_Proxy_getClassNameJNI
  * Signature: (J)Ljava/lang/String;
  */
 JNIEXPORT jstring JNICALL Java_Pothos_Proxy_toStringJNI
-  (JNIEnv *, jclass, jlong handle)
+  (JNIEnv * env, jclass, jlong handle)
 {
-    auto* pNativeProxy = jlongToPtr<Pothos::Proxy>(handle);
-    return Pothos::Object(pNativeProxy->toString()).convert<jstring>();
+    POTHOS_SAFE_JNI
+    (
+        auto* pNativeProxy = jlongToPtr<Pothos::Proxy>(handle);
+        return Pothos::Object(pNativeProxy->toString()).convert<jstring>();
+    )
+
+    return env->NewStringUTF("");
 }
 
 /*
@@ -159,9 +200,14 @@ JNIEXPORT jstring JNICALL Java_Pothos_Proxy_toStringJNI
  * Signature: (J)I
  */
 JNIEXPORT jint JNICALL Java_Pothos_Proxy_hashCodeJNI
-  (JNIEnv *, jclass, jlong handle)
+  (JNIEnv * env, jclass, jlong handle)
 {
-    return static_cast<jint>(jlongToPtr<Pothos::Proxy>(handle)->hashCode());
+    POTHOS_SAFE_JNI
+    (
+        return static_cast<jint>(jlongToPtr<Pothos::Proxy>(handle)->hashCode());
+    )
+
+    return 0;
 }
 
 /*
@@ -170,12 +216,17 @@ JNIEXPORT jint JNICALL Java_Pothos_Proxy_hashCodeJNI
  * Signature: (JJ)Z
  */
 JNIEXPORT jboolean JNICALL Java_Pothos_Proxy_equalsJNI
-  (JNIEnv *, jclass, jlong handle1, jlong handle2)
+  (JNIEnv * env, jclass, jlong handle1, jlong handle2)
 {
-    auto* pProxy1 = jlongToPtr<Pothos::Proxy>(handle1);
-    auto* pProxy2 = jlongToPtr<Pothos::Proxy>(handle2);
+    POTHOS_SAFE_JNI
+    (
+        auto* pProxy1 = jlongToPtr<Pothos::Proxy>(handle1);
+        auto* pProxy2 = jlongToPtr<Pothos::Proxy>(handle2);
 
-    return ((*pProxy1) == (*pProxy2));
+        return ((*pProxy1) == (*pProxy2));
+    )
+
+    return JNI_FALSE;
 }
 
 /*
@@ -184,9 +235,14 @@ JNIEXPORT jboolean JNICALL Java_Pothos_Proxy_equalsJNI
  * Signature: ()J
  */
 JNIEXPORT jlong JNICALL Java_Pothos_Proxy_allocateJNI
-  (JNIEnv *, jclass)
+  (JNIEnv * env, jclass)
 {
-    return ptrToJLong(new Pothos::Proxy());
+    POTHOS_SAFE_JNI
+    (
+        return ptrToJLong(new Pothos::Proxy());
+    )
+
+    return 0;
 }
 
 }

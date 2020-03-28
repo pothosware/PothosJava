@@ -1,9 +1,11 @@
-// Copyright (c) 2019 Nicholas Corgan
+// Copyright (c) 2019-2020 Nicholas Corgan
 // SPDX-License-Identifier: BSL-1.0
 
 #pragma once
 
 #include "../JavaProxy.hpp"
+
+#include <Poco/Exception.h>
 
 #include <Pothos/Proxy.hpp>
 
@@ -25,4 +27,12 @@ template <typename T>
 static inline jlong ptrToJLong(T* ptr)
 {
     return reinterpret_cast<jlong>(ptr);
+}
+
+void pothosExceptionToJavaException(JNIEnv* env, const Pothos::Exception& ex);
+
+#define POTHOS_SAFE_JNI(stmt) \
+{ \
+    POTHOS_EXCEPTION_TRY {stmt;} \
+    POTHOS_EXCEPTION_CATCH(const Pothos::Exception &ex) {pothosExceptionToJavaException(env, ex);} \
 }

@@ -13,5 +13,5 @@
 POTHOS_TEST_BLOCK("/proxy/java/tests", java_module_import)
 {
     auto env = Pothos::ProxyEnvironment::make("java");
-    env->findProxy("Pothos.Proxy");
+    auto proxy = env->findProxy("Pothos.Proxy");
 }

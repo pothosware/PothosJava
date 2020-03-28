@@ -61,6 +61,7 @@ set(SOURCES
     JavaBlock.cpp
     JavaLogger.cpp
 
+    jni/JNIUtility.cpp
     jni/ProxyJNI.cpp
     jni/ProxyEnvironmentJNI.cpp
 
