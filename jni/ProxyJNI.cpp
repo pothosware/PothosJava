@@ -1,4 +1,4 @@
-// Copyright (c) 2019 Nicholas Corgan
+// Copyright (c) 2019-2020 Nicholas Corgan
 // SPDX-License-Identifier: BSL-1.0
 
 #include "../JavaProxy.hpp"
@@ -7,6 +7,9 @@
 #include <Pothos/Proxy.hpp>
 
 #include <jni.h>
+
+extern "C"
+{
 
 /*
  * Class:     Pothos_Proxy
@@ -184,4 +187,6 @@ JNIEXPORT jlong JNICALL Java_Pothos_Proxy_allocateJNI
   (JNIEnv *, jclass)
 {
     return ptrToJLong(new Pothos::Proxy());
+}
+
 }
