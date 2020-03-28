@@ -1,5 +1,5 @@
 // Copyright (c) 2013-2014 Josh Blum
-//                    2019 Nicholas Corgan
+//               2019-2020 Nicholas Corgan
 // SPDX-License-Identifier: BSL-1.0
 
 #include "JavaProxy.hpp"
@@ -7,7 +7,7 @@
 #include <Pothos/Plugin.hpp>
 #include <Pothos/System/Paths.hpp>
 #include <iostream>
-#include <Poco/RecursiveDirectoryIterator.h>
+#include <Poco/DirectoryIterator.h>
 #include <Poco/Format.h>
 #include <Poco/Logger.h>
 #include <Poco/Path.h>
@@ -62,29 +62,30 @@ static std::string getPathSeparator()
     return pathSeparatorString;
 }
 
-static Poco::Path getModulesDir()
+static std::vector<std::string> getAllModuleDirs()
 {
-    return Poco::Path(Pothos::System::getPothosDevLibraryPath())
-               .append("Pothos")
-               .append("modules" + Pothos::System::getAbiVersion())
-               .absolute();
+    auto moduleDirs = Pothos::System::getPothosModuleSearchPaths();
+    moduleDirs.emplace_back(Poco::Path(moduleDirs[0]).append("proxy/environment").toString());
+    moduleDirs.insert(moduleDirs.begin(), Poco::Path::current());
+
+    return moduleDirs;
 }
 
 static std::vector<std::string> getAllJARFiles()
 {
-    Poco::Path dirPath(getModulesDir());
-
+    const auto moduleDirs = getAllModuleDirs();
     std::vector<std::string> jarFiles;
-    Poco::SimpleRecursiveDirectoryIterator end;
-    for(Poco::SimpleRecursiveDirectoryIterator dirIter(dirPath);
-        dirIter != end;
-        ++dirIter)
-    {
-        Poco::Path path(dirIter->path());
 
-        if(path.getExtension() == "jar")
+    Poco::DirectoryIterator end;
+    for(const auto& moduleDir: moduleDirs)
+    {
+        for(Poco::DirectoryIterator dirIter(moduleDir); dirIter != end; ++dirIter)
         {
-            jarFiles.emplace_back(path.toString());
+            Poco::Path path(dirIter->path());
+            if(path.getExtension() == "jar")
+            {
+                jarFiles.emplace_back(path.toString());
+            }
         }
     }
 
@@ -101,7 +102,7 @@ static std::string getJavaClassPathParameter()
     std::string ret;
     if(!appendedJARFiles.empty())
     {
-        ret = "-Djava.class.path=" + appendedJARFiles;
+        ret = "-Djava.class.path=\"" + appendedJARFiles + "\"";
     }
 
     return ret;
@@ -109,21 +110,13 @@ static std::string getJavaClassPathParameter()
 
 static std::string getJavaLibraryPathParameter()
 {
-    const auto modulesDir = getModulesDir().toString();
-    const auto proxyEnvDir = Poco::Path(modulesDir).append("proxy/environment").toString();
+    const auto moduleDirs = getAllModuleDirs();
+    const auto moduleDirsString = Poco::cat(
+                                       getPathSeparator(),
+                                       moduleDirs.begin(),
+                                       moduleDirs.end());
 
-    const std::vector<std::string> paths =
-    {
-        ".",
-        modulesDir,
-        proxyEnvDir
-    };
-    const auto appendedDirs = Poco::cat(
-                                  getPathSeparator(),
-                                  paths.begin(),
-                                  paths.end());
-
-    return "-Djava.library.path=" + appendedDirs;
+    return "-Djava.library.path=\"" + moduleDirsString + "\"";
 }
 
 JavaProxyEnvironment::JavaProxyEnvironment(const Pothos::ProxyEnvironmentArgs &args)
