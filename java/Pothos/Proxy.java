@@ -1,10 +1,15 @@
-// Copyright (c) 2019 Nicholas Corgan
+// Copyright (c) 2019-2020 Nicholas Corgan
 // SPDX-License-Identifier: BSL-1.0
 
 package Pothos;
 
 public class Proxy
 {
+    static
+    {
+        LoadNative.loadNative();
+    }
+
     private long nativeHandle;
 
     public Proxy()

@@ -1,4 +1,4 @@
-// Copyright (c) 2019 Nicholas Corgan
+// Copyright (c) 2019-2020 Nicholas Corgan
 // SPDX-License-Identifier: BSL-1.0
 
 package Pothos;
@@ -12,6 +12,11 @@ import java.util.Vector;
 // TODO: WorkInfo, emitSignal
 public class Block
 {
+    static
+    {
+        LoadNative.loadNative();
+    }
+
     private Proxy javaBlockProxy = null;
 
     public Block()

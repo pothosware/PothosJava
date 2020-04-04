@@ -1,4 +1,4 @@
-// Copyright (c) 2019 Nicholas Corgan
+// Copyright (c) 2019-2020 Nicholas Corgan
 // SPDX-License-Identifier: BSL-1.0
 
 package Pothos;
@@ -8,6 +8,11 @@ import java.util.NoSuchElementException;
 
 public class LabelIterator implements Iterator<Label>
 {
+    static
+    {
+        LoadNative.loadNative();
+    }
+
     private Proxy labelIteratorProxy;
     private long index = 0;
     private long length = 0;

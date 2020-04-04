@@ -1,4 +1,4 @@
-// Copyright (c) 2019 Nicholas Corgan
+// Copyright (c) 2019-2020 Nicholas Corgan
 // SPDX-License-Identifier: BSL-1.0
 
 package Pothos;
@@ -7,6 +7,11 @@ import java.nio.ByteBuffer;
 
 public class OutputPort
 {
+    static
+    {
+        LoadNative.loadNative();
+    }
+
     private Proxy outputPortProxy;
 
     public OutputPort(Proxy proxy)
